@@ -103,24 +103,16 @@ function loadBirdSprite() {
 
   img.onload = () => {
     birdAspect = img.width / img.height;
-    birdSprite = img;
-
-    try {
-      const off = document.createElement("canvas");
-      off.width = img.width;
-      off.height = img.height;
-      const octx = off.getContext("2d", { willReadFrequently: true });
-      octx.drawImage(img, 0, 0);
-      const imgData = octx.getImageData(0, 0, off.width, off.height);
-      const px = imgData.data;
-      for (let i = 0; i < px.length; i += 4) {
-        if (px[i] < 45 && px[i + 1] < 45 && px[i + 2] < 45) {
-          px[i + 3] = 0;
-        }
-      }
-      octx.putImageData(imgData, 0, 0);
-      birdSprite = off;
-    } catch (_) {}
+    // Mobile perf: avoid per-pixel filters; just pre-scale once.
+    const targetH = Math.max(48, Math.round(PHYS.birdHeight * 1.75));
+    const targetW = Math.max(32, Math.round(targetH * birdAspect));
+    const off = document.createElement("canvas");
+    off.width = targetW;
+    off.height = targetH;
+    const octx = off.getContext("2d");
+    octx.imageSmoothingEnabled = true;
+    octx.drawImage(img, 0, 0, targetW, targetH);
+    birdSprite = off;
   };
 
   img.onerror = tryNext;
