@@ -7,6 +7,10 @@ const ctx = canvas.getContext("2d");
 const GH = 540;
 const REF_GW = 960;
 const BIRD_SPRITE_SRCS = ["essam-sprite.png", "essam.png"];
+const IS_MOBILE =
+  window.matchMedia("(pointer: coarse)").matches ||
+  /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent);
+const MOBILE_RENDER_SCALE = 0.72;
 
 let GW = REF_GW;
 
@@ -29,14 +33,19 @@ let H = 0;
 let viewScale = 1;
 let viewOffsetX = 0;
 let viewOffsetY = 0;
+let displayW = 0;
+let displayH = 0;
 let bird, pipes = [], score, best, frame, state;
 let birdSprite = null;
 let birdAspect = 0.75;
 
 function resize() {
   const prevGW = GW;
-  W = Math.max(1, window.innerWidth);
-  H = Math.max(1, window.innerHeight);
+  displayW = Math.max(1, window.innerWidth);
+  displayH = Math.max(1, window.innerHeight);
+  const renderScale = IS_MOBILE ? MOBILE_RENDER_SCALE : 1;
+  W = Math.max(1, Math.round(displayW * renderScale));
+  H = Math.max(1, Math.round(displayH * renderScale));
   canvas.width = W;
   canvas.height = H;
   viewScale = H / GH;
